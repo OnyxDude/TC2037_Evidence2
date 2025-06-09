@@ -69,27 +69,27 @@ To better understand how Esperanto forms sentences, here are the basic rules tha
 
 ## Models
 ### Grammar Model that Recognizes the Language (initial grammar)
+
 ```
-S → NP VP | NP VP NP
-NP → NP ADJ | DET NP | N | ADJ NP | DET ADJ NP
-VP → V | V ADV | ADV V | VP ADV
+S → NP VP
+NP → DET ADJ NP | DET NP | ADJ NP | N
+VP → VP ADV | V ADV | ADV | V
 N → 'hundo' | 'kato' | 'libro' | 'viro' | 'domo' | 'tablo' | 'pomo' | 'floro'
 ADJ → 'rapida' | 'granda' | 'bela' | 'verda' | 'blua' | 'nova'
-V → 'kuras' | 'manĝas' | 'dormas' | 'legas' | 'parolas' | 'skribas'
-ADV → 'rapide' | 'bone' | 'klare' | 'forte' | 'silente'
-DET → 'la'
+V -> 'kuras' | 'manĝas' | 'dormas' | 'legas' | 'parolas' | 'skribas'
+ADV -> 'rapide' | 'bone' | 'klare' | 'forte' | 'silente'
+DET -> 'la'
 ```
 
 This initial grammar has both left recursion and ambiguity issues that prevent it from being an LL(1) grammar. Let me explain each issue:
 
 #### 1. Left Recursion
 
-Because the grammar has left recursion in two rules:
+Because the grammar has left recursion in a rule:
 
-1. `NP → NP ADJ`: The non-terminal NP appears at the left position.
-2. `VP → VP ADV`: Similarly, VP appears at the left position.
+* `VP → VP ADV`: The non-terminal VP appears at the left position.
 
-Left recursion causes problems for LL(1) parsers because it leads to infinite recursion. For example, when trying to parse the rule `NP → NP ADJ`, the parser would keep applying the same rule infinitely.
+Left recursion causes problems for LL(1) parsers because it leads to infinite recursion. For example, when trying to parse the rule `VP → VP ADV`, the parser would keep applying the same rule infinitely.
 
 #### 2. Ambiguity Issue
 
@@ -130,15 +130,25 @@ This grammar results unsuitable for LL(1) parsing because the parser cannot choo
 
 ### Eliminate Ambiguity and Left Recursion (final grammar)
 
-To eliminate ambiguity and make our grammar LL(1), we need to add intermediate states and productions that indicate a precedence. By doing that we reached the following grammar:
+#### Step 1: Eliminating Left Recursion
+
+Left recursion occurs when a non-terminal appears as the leftmost symbol in its own production rule. To eliminate left recursion
+
+
+While this eliminates left recursion, these intermediate forms still contain ambiguity. For example, multiple rules could apply when parsing a determiner followed by an adjective and a noun.
+
+#### Step 2: Eliminating Ambiguity
+
+To eliminate ambiguity, we need to add intermediate states and productions that indicate a precedence.
+
+By eliminating ambiguity and left recursion, our grammar is now LL(1) suitable:
 
 ```
 S → NP VP | NP VP NP
 NP → DET_PHRASE | N
 DET_PHRASE → DET N | DET ADJ_PHRASE
 ADJ_PHRASE → ADJ N
-VP → V_ONLY | V_ADV
-V_ONLY → V
+VP → V | V_ADV
 V_ADV → V ADV | ADV V
 N → 'hundo' | 'kato' | 'libro' | 'viro' | 'domo' | 'tablo' | 'pomo' | 'floro'
 ADJ → 'rapida' | 'granda' | 'bela' | 'verda' | 'blua' | 'nova'
@@ -153,10 +163,9 @@ This new grammar ensures that there's only one way to derive noun phrases with d
 2.  `NP → DET_PHRASE | N`: A noun phrase can be either a determiner phrase or just a noun.
 3.  `DET_PHRASE → DET N | DET ADJ_PHRASE`: A determiner phrase consists of a determiner followed by either a noun or an adjective phrase.
 4.  `ADJ_PHRASE → ADJ N`: An adjective phrase consists of an adjective followed by a noun.
-5.  `VP → V_ONLY | V_ADV`: A verb phrase can be either a verb alone or a verb with an adverb.
-6.  `V_ONLY → V`: A verb-only phrase consists of just a verb.
-7.  `V_ADV → V ADV | ADV V`: A verb-adverb phrase consists of either a verb followed by an adverb or an adverb followed by a verb.
-8.  `N, ADJ, V, ADV, DET`: Terminal symbols representing the respective parts of speech.
+5.  `VP → V | V_ADV`: A verb phrase can be either a verb alone or a verb with an adverb.
+6.  `V_ADV → V ADV | ADV V`: A verb-adverb phrase consists of either a verb followed by an adverb or an adverb followed by a verb.
+7.  `N, ADJ, V, ADV, DET`: Terminal symbols representing the respective parts of speech.
 
 ```
                             S                     
@@ -306,7 +315,7 @@ Before eliminating ambiguity and left recursion, in the Chomsky hierarchy, this 
 
 ### Chomsky Hierarchy Level After
 
-After eliminating ambiguity and left recursion, the grammar is still a **Context-Free Grammar** (Type 2), the type of grammar stays the same in the Chomsky hierarchy. The transformation is a technique for preparing context-free grammars for LL(1) parsing but it doesnt change their chomsky hierarchy level.
+After eliminating ambiguity and left recursion, the grammar is still a **Context-Free Grammar** (Type 2), the type of grammar stays the same in the Chomsky hierarchy. The elimintaion of ambiguity and left recursion is a technique for preparing context-free grammars for LL(1) parsing but it doesnt change their chomsky hierarchy level.
 
 ### Time Implications of Chomsky Hierarchy Levels
 
