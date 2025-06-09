@@ -71,16 +71,29 @@ To better understand how Esperanto forms sentences, here are the basic rules tha
 ### Grammar Model that Recognizes the Language (initial grammar)
 ```
 S → NP VP | NP VP NP
-NP → DET NP | N | ADJ NP | DET ADJ NP
-VP → V | V ADV | ADV V
+NP → NP ADJ | DET NP | N | ADJ NP | DET ADJ NP
+VP → V | V ADV | ADV V | VP ADV
 N → 'hundo' | 'kato' | 'libro' | 'viro' | 'domo' | 'tablo' | 'pomo' | 'floro'
 ADJ → 'rapida' | 'granda' | 'bela' | 'verda' | 'blua' | 'nova'
-V -> 'kuras' | 'manĝas' | 'dormas' | 'legas' | 'parolas' | 'skribas'
-ADV -> 'rapide' | 'bone' | 'klare' | 'forte' | 'silente'
-DET -> 'la'
+V → 'kuras' | 'manĝas' | 'dormas' | 'legas' | 'parolas' | 'skribas'
+ADV → 'rapide' | 'bone' | 'klare' | 'forte' | 'silente'
+DET → 'la'
 ```
 
-This initial grammar doesnt have left recursion, therefore the only issue preventing it from being an LL(1) grammar is ambiguity. Because the NP state has multiple ways to derive the same string. For example, "La rapida hundo kuras rapide" could be derived in different ways:
+This initial grammar has both left recursion and ambiguity issues that prevent it from being an LL(1) grammar. Let me explain each issue:
+
+#### 1. Left Recursion
+
+Because the grammar has left recursion in two rules:
+
+1. `NP → NP ADJ`: The non-terminal NP appears at the left position.
+2. `VP → VP ADV`: Similarly, VP appears at the left position.
+
+Left recursion causes problems for LL(1) parsers because it leads to infinite recursion. For example, when trying to parse the rule `NP → NP ADJ`, the parser would keep applying the same rule infinitely.
+
+#### 2. Ambiguity Issue
+
+Because the NP state has multiple ways to derive the same string. For example, "La rapida hundo kuras rapide" could be derived in different ways:
 
 ```
             S 
@@ -289,11 +302,11 @@ The level of the grammar in Chomsky’s hierarchy before and after the eliminati
 
 ### Chomsky Hierarchy Level Before
 
-Before eliminating ambiguity, in the Chomsky hierarchy, this grammar would fall into the **Context-Free Grammar** (Type 2). Even with the ambiguity in the NP rule, it still adheres to the characteristics of this grammar.
+Before eliminating ambiguity and left recursion, in the Chomsky hierarchy, this grammar would fall into the **Context-Free Grammar** (Type 2). Even with the ambiguity in the NP rule and the left recursion in both NP and VP rules, it still adheres to the characteristics of a context-free grammar.
 
 ### Chomsky Hierarchy Level After
 
-After eliminating ambiguity and left recursion, the grammar is still a **Context-Free Grammar** (Type 2). The changes made were to resolve ambiguity, not to change the fundamental structure of the rules, therefore the type of grammar stays the same.
+After eliminating ambiguity and left recursion, the grammar is still a **Context-Free Grammar** (Type 2), the type of grammar stays the same in the Chomsky hierarchy. The transformation is a technique for preparing context-free grammars for LL(1) parsing but it doesnt change their chomsky hierarchy level.
 
 ### Time Implications of Chomsky Hierarchy Levels
 
