@@ -196,6 +196,8 @@ To implement a tester for my grammar, I made a python program using NLTK that va
     la bela viro parolas bone  # true
     ```
 
+* To exit the program simply type in 'exit'
+
 ## Tests
 
 The file `tests.py` contains the set of tests I could think of for my grammar.
@@ -210,10 +212,9 @@ The set of tests show both positive cases (sentences that should be accepted) an
 4.  `viro legas libro`: A man reads a book.
 5.  `la granda viro manĝas`: The big man eats.
 6.  `hundo manĝas la verda libro`: A dog eats the green book.
-7.  `rapide kuras la blua kato`: Quickly runs the blue cat.
-8.  `la bela viro parolas bone`: The handsome man speaks well.
-9.  `la hundo kuras rapide`: The dog runs quickly.
-10. `viro legas la granda libro`: A man reads the big book.
+7.  `la bela viro parolas bone`: The handsome man speaks well.
+8.  `la hundo kuras rapide`: The dog runs quickly.
+9.  `viro legas la granda libro`: A man reads the big book.
 
 ### Incorrect Sentences
 
