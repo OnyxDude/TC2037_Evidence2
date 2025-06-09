@@ -24,7 +24,7 @@ Here are some interesting and distinctive grammatical features in Esperanto:
 
 ### Basic syntax rules
 
-To better understand how Esperanto forms sentences, here are the basic rules that i will model in the grammar:
+To better understand how Esperanto forms sentences, here are the basic rules that I will model in the grammar according to the official Esperanto page (Esperanto Grammar, n.d.):
 
 1.  Basic sentence structure follows Subject-Verb-Object (SVO) order, though other orders are grammatically possible due to the accusative marking.
 
@@ -132,16 +132,38 @@ This grammar results unsuitable for LL(1) parsing because the parser cannot choo
 
 #### Step 1: Eliminating Left Recursion
 
-Left recursion occurs when a non-terminal appears as the leftmost symbol in its own production rule. To eliminate left recursion
+Left recursion occurs when a non-terminal appears as the leftmost symbol in its own production rule. In our grammar, this happens in the VP rule:
 
+```
+VP → VP ADV | V ADV | ADV | V
+```
 
-While this eliminates left recursion, these intermediate forms still contain ambiguity. For example, multiple rules could apply when parsing a determiner followed by an adjective and a noun.
+This is problematic because an LL(1) parser would enter an infinite loop when trying to expand VP.
+
+To eliminate left recursion, I applied the standard technique from compiler theory (Aho, Sethi & Ullman, 1986) that transforms left-recursive rules into non-recursive equivalents:
+
+1. Identify the recursive parts (VP → VP ADV) and non-recursive parts (VP → V ADV | ADV | V)
+2. Create a new non-terminal VP' to handle the repetition
+3. Rewrite the rule using the new non-terminal
+
+This transforms our VP rule into:
+
+```
+VP → V VP' | ADV VP'
+VP' → ADV VP' | ε
+```
+
+Where VP' represents "optional additional adverbs" and ε represents the empty string (nothing).
+
+This later translates into a similar implementation when removing ambiguity:
+```
+VP → V | V_ADV
+V_ADV → V ADV | ADV V
+```
 
 #### Step 2: Eliminating Ambiguity
 
-To eliminate ambiguity, we need to add intermediate states and productions that indicate a precedence.
-
-By eliminating ambiguity and left recursion, our grammar is now LL(1) suitable:
+Moving on to the next step, eliminating ambiguity, to achieve this, we need to add intermediate states and productions that indicate a precedence. The new version without ambiguity looks like the following:
 
 ```
 S → NP VP | NP VP NP
@@ -319,6 +341,8 @@ After eliminating ambiguity and left recursion, the grammar is still a **Context
 
 ### Time Implications of Chomsky Hierarchy Levels
 
+Based on research from various sources (Recursive and Recursively Enumerable Languages, 2023; Recursive Enumeration and Hierarchies, 2023), here are the time complexity implications for each level in the Chomsky hierarchy:
+
 * **Regular Grammars (Type 3):**
     * Parsing/recognition is very efficient, typically **O(n) (linear)** time complexity, where *n* is the length of the input string.
     * **Example:** Identifiers.
@@ -332,27 +356,23 @@ After eliminating ambiguity and left recursion, the grammar is still a **Context
 * **Context Sensitive (Type 1):**
     * Parsing is even more complex. Time complexity is **NP complete (exponential)**.
     * **Example:** Natural Languages (ambiguity).
-    * **String Example:** `	John likes Mary. - John like Mary. `
+    * **String Example:** `John likes Mary. - John like Mary.`
 
 * **Recursively Enumerable (Type 0):**
-    * Parsing is the most complex. It is possible that the algorithm will never end, therefore the time complexity is undecidable.
+    * Parsing is the most complex. It is possible that the algorithm will never end, therefore the time complexity is undecidable (Google Document on Recursive Languages, n.d.).
     * **Example:** Complex Math theories.
-    * **String Example:** I couldnt really think of one, and investigating i found the following, althought its still not very clear: `𝐿={𝑥𝑖∣𝑥𝑖∉𝐿(𝐺𝑖)}.`
+    * **String Example:** I couldnt really think of one, and investigating i found the following, althought its still not very clear: `𝐿={𝑥𝑖∣𝑥𝑖∉𝐿(𝐺𝑖)}.` (Is there an example of a recursive language which is not context-sensitive?, n.d.).
 
 ## References
+
+Aho, A. V., Sethi, R., & Ullman, J. D. (1986). *Compilers: Principles, Techniques, and Tools*. Addison-Wesley.
 
 Esperanto Grammar. (n.d.). Retrieved from [https://esperanto.lingolia.com/en/grammar](https://esperanto.lingolia.com/en/grammar)
 
 Google Document on Recursive Languages. (n.d.). Retrieved from [https://docs.google.com/document/d/1KmtIc94VDAtMQCm0xRqR7cvnKyDVDz_qwU31JokQ-Zw/edit?tab=t.0](https://docs.google.com/document/d/1KmtIc94VDAtMQCm0xRqR7cvnKyDVDz_qwU31JokQ-Zw/edit?tab=t.0)
-
-Grin, F. (2005). *The Economics of the Multilingual Workplace*. Routledge.
 
 Is there an example of a recursive language which is not context-sensitive? (n.d.). Retrieved from [https://cs.stackexchange.com/questions/56632/is-there-an-example-of-a-recursive-language-which-is-not-context-sensitive](https://cs.stackexchange.com/questions/56632/is-there-an-example-of-a-recursive-language-which-is-not-context-sensitive)
 
 Recursive and Recursively Enumerable Languages. (2023). Retrieved from [https://btu.edu.ge/wp-content/uploads/2023/07/Lesson-8_-Introduction-to-Recursive-and-Recursively-Enumerable-Languages.pdf](https://btu.edu.ge/wp-content/uploads/2023/07/Lesson-8_-Introduction-to-Recursive-and-Recursively-Enumerable-Languages.pdf)
 
 Recursive Enumeration and Hierarchies. (2023). Retrieved from [https://courses.cs.duke.edu/spring23/compsci334/lects/sectRecEnumH.pdf](https://courses.cs.duke.edu/spring23/compsci334/lects/sectRecEnumH.pdf)
-
-Recursively Enumerable Language. (n.d.). Retrieved from [https://en.wikipedia.org/wiki/Recursively_enumerable_language](https://en.wikipedia.org/wiki/Recursively_enumerable_language)
-
-Zamenhof, L. L. (1887). *Unua Libro*.
